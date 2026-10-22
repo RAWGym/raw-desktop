@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <title>RAW Management</title>
+    <style>
+      :root { color-scheme: light dark; }
+      body {
+        margin: 0;
+        height: 100vh;
+        display: grid;
+        place-items: center;
+        font-family: 'Segoe UI', system-ui, sans-serif;
+        background: #f6f6f8;
+        color: #15161a;
+        -webkit-app-region: drag;
+      }
+      .box { text-align: center; max-width: 360px; padding: 24px; }
+      img { width: 140px; margin-bottom: 24px; }
+      h1 { font-size: 20px; margin: 0 0 8px; }
+      p { color: #6b6f7b; margin: 0 0 20px; line-height: 1.5; }
+      button {
+        -webkit-app-region: no-drag;
+        border: none;
+        border-radius: 12px;
+        padding: 11px 22px;
+        font: inherit;
+        font-weight: 700;
+        background: #15161a;
+        color: #fff;
+        cursor: pointer;
+      }
+      @media (prefers-color-scheme: dark) {
+        body { background: #0d0e12; color: #f3f3f6; }
+        img { filter: invert(1); }
+        button { background: #f472b6; color: #1a0b13; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="box">
+      <img src="build/logo.png" alt="RAW" />
+      <h1>Нет подключения к интернету</h1>
+      <p>RAW подключится сам, как только появится сеть.</p>
+      <button id="retry">Повторить</button>
+    </div>
+    <script>
+      const retry = () => window.rawDesktop && window.rawDesktop.retry()
+      document.getElementById('retry').onclick = retry
+      window.addEventListener('online', retry)
+      setInterval(() => navigator.onLine && retry(), 15000)
+    </script>
+  </body>
+</html>
