@@ -13,12 +13,30 @@ permissions:
 jobs:
   windows:
     runs-on: windows-latest
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 22
+
+      # Релиз создаём заранее: иначе electron-builder при параллельной загрузке файлов
+      # может создать два релиза с одним тегом.
+      - name: Create release
+        shell: bash
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1 || \
+            gh release create "$GITHUB_REF_NAME" --title "$VERSION" --notes "RAW Management $VERSION для Windows. Установщик — файл RAW-Management-Setup-$VERSION.exe ниже; установленные приложения обновятся сами."
+
       - run: npm install --no-audit --no-fund
       - run: npx electron-builder --win --x64 --publish always
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # Убираем пустые дубликаты релизов (без установщика), если они когда-то появились.
+      - name: Clean duplicate releases
+        shell: bash
+        run: |
+          gh api "repos/$GITHUB_REPOSITORY/releases?per_page=100" \
+            --jq '.[] | select(([.assets[].name] | map(endswith(".exe")) | any) | not) | .id' |
+            while read -r id; do gh api -X DELETE "repos/$GITHUB_REPOSITORY/releases/$id"; done

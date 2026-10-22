@@ -1,7 +1,7 @@
 {
   "name": "raw-desktop",
   "productName": "RAW Management",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "RAW Management для Windows",
   "author": "RAW",
   "main": "main.js",
